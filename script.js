@@ -81,6 +81,21 @@ const displayMovements = (movements) => {
 
 displayMovements(account1.movements)
 
+// Computing usernames
+
+const createUsernames = (accs) => {
+  accs.forEach((acc) => {
+    acc.username = acc.owner
+      .toLocaleLowerCase()
+      .split(' ')
+      .map((name) => name[0])
+      .join('')
+  })
+}
+
+createUsernames(accounts)
+console.log(accounts)
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -92,5 +107,13 @@ const currencies = new Map([
 ])
 
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300]
+
+const eurToUsd = 1.1
+const movementsUSD = movements.map((mov) => {
+  return mov * eurToUsd
+})
+
+console.log(movements)
+console.log(movementsUSD)
 
 /////////////////////////////////////////////////
