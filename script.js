@@ -151,6 +151,7 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur()
 
     containerApp.style.opacity = 100
+    labelWelcome.style.color = '#444'
 
     // Refresh the UI
     updateUI(currentAccount)
@@ -192,6 +193,31 @@ btnTransfer.addEventListener('click', (e) => {
     updateUI(currentAccount)
   } else {
     alert('Please, insuficient balance in your account!')
+  }
+})
+
+// Close account
+btnClose.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username,
+    )
+
+    inputCloseUsername.value = inputClosePin.value = ''
+
+    if (confirm('Are you sure?')) {
+      // Delete account
+      accounts.splice(index, 1)
+      containerApp.style.opacity = 0
+      labelWelcome.textContent = `Log in to get started`
+    }
+  } else {
+    alert('Please, check your credentials for close an account')
   }
 })
 
