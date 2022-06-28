@@ -71,7 +71,7 @@ const displayMovements = (movements) => {
           ${i + 1} ${type}
         </div>
         <div class="movements__date">24/01/2037</div>
-        <div class="movements__value">${mov}</div>
+        <div class="movements__value">${mov}€</div>
       </div>
     `
 
@@ -79,10 +79,34 @@ const displayMovements = (movements) => {
   })
 }
 
-displayMovements(account1.movements)
+const calcPrintBalance = (movements) => {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0)
+  labelBalance.textContent = `${balance}€`
+}
+
+const calcDisplaySummary = (account) => {
+  const incomes = account.movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0)
+
+  labelSumIn.textContent = `${incomes}€`
+
+  const out = account.movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0)
+
+  labelSumOut.textContent = `${Math.abs(out)}€`
+
+  const interest = account.movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => (deposit * account.interestRate) / 100)
+    .filter((int, i, array) => int >= 1)
+    .reduce((acc, mov) => acc + mov, 0)
+
+  labelSumInterest.textContent = `${interest}€`
+}
 
 // Computing usernames
-
 const createUsernames = (accs) => {
   accs.forEach((acc) => {
     acc.username = acc.owner
@@ -94,12 +118,46 @@ const createUsernames = (accs) => {
 }
 
 createUsernames(accounts)
-console.log(accounts)
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
+// Event handler
+let currentAccount
+
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault()
+
+  currentAccount = accounts.find(
+    (acc) => acc.username === inputLoginUsername.value,
+  )
+
+  if (currentAccount && currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`
+
+    inputLoginPin.value = inputLoginUsername.value = ''
+    inputLoginPin.blur()
+
+    containerApp.style.opacity = 100
+
+    // Display movements
+    displayMovements(currentAccount.movements)
+
+    // Display balance
+    calcPrintBalance(currentAccount.movements)
+
+    // Display summary
+    calcDisplaySummary(currentAccount)
+
+    return
+  }
+
+  containerApp.style.opacity = 0
+  labelWelcome.textContent = `User or password inválid`
+  labelWelcome.style.color = `red`
+})
+
 // LECTURES
-
 const currencies = new Map([
   ['USD', 'United States dollar'],
   ['EUR', 'Euro'],
@@ -112,8 +170,3 @@ const eurToUsd = 1.1
 const movementsUSD = movements.map((mov) => {
   return mov * eurToUsd
 })
-
-console.log(movements)
-console.log(movementsUSD)
-
-/////////////////////////////////////////////////
