@@ -79,9 +79,10 @@ const displayMovements = (movements) => {
   })
 }
 
-const calcPrintBalance = (movements) => {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0)
-  labelBalance.textContent = `${balance}€`
+const calcPrintBalance = (account) => {
+  account.balance = account.movements.reduce((acc, mov) => acc + mov, 0)
+
+  labelBalance.textContent = `${account.balance}€`
 }
 
 const calcDisplaySummary = (account) => {
@@ -119,6 +120,17 @@ const createUsernames = (accs) => {
 
 createUsernames(accounts)
 
+const updateUI = (acc) => {
+  // Display movements
+  displayMovements(acc.movements)
+
+  // Display balance
+  calcPrintBalance(acc)
+
+  // Display summary
+  calcDisplaySummary(acc)
+}
+
 // Event handler
 let currentAccount
 
@@ -140,14 +152,8 @@ btnLogin.addEventListener('click', function (e) {
 
     containerApp.style.opacity = 100
 
-    // Display movements
-    displayMovements(currentAccount.movements)
-
-    // Display balance
-    calcPrintBalance(currentAccount.movements)
-
-    // Display summary
-    calcDisplaySummary(currentAccount)
+    // Refresh the UI
+    updateUI(currentAccount)
 
     return
   }
@@ -155,6 +161,38 @@ btnLogin.addEventListener('click', function (e) {
   containerApp.style.opacity = 0
   labelWelcome.textContent = `User or password inválid`
   labelWelcome.style.color = `red`
+})
+
+// Transfers
+btnTransfer.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  const amount = Number(inputTransferAmount.value)
+  const receiverAcc = accounts.find(
+    (acc) => acc.username === inputTransferTo.value,
+  )
+
+  inputTransferAmount.value = inputTransferTo.value = ''
+
+  if (!receiverAcc) {
+    alert('User not found!')
+    return
+  }
+
+  if (
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    // Doing the transfer
+    currentAccount.movements.push(-amount)
+    receiverAcc.movements.push(amount)
+
+    // Refresh the UI
+    updateUI(currentAccount)
+  } else {
+    alert('Please, insuficient balance in your account!')
+  }
 })
 
 // LECTURES
